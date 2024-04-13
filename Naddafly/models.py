@@ -71,11 +71,20 @@ class Rewards(db.Model):
     expiration_date = db.Column(db.DateTime, default=datetime.now)
     voucher_code = db.Column(db.String(length=60), nullable=False, unique=True)
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'userId': self.userId,
+            'platform': self.platform,
+            'discount': self.discount,
+            'description': self.description,
+            'expiration_date': self.expiration_date.isoformat(),
+            'voucher_code': self.voucher_code
+        }
+
 
 with app.app_context():
     def generate_vouchers(num_vouchers, platform, discount, description, days):
-
-
         for _ in range(num_vouchers):
             # Generate a random voucher_code
             # while True:

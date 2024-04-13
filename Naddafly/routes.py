@@ -18,7 +18,7 @@ def register():
     username = data.get('username')
     email = data.get('email')
     password = data.get('password')
-    user_type = data.get('user_type')  # Add user_type field to specify the type of user
+    user_type = data.get('user_type')
 
     if not username or not email or not password or not user_type:
         return jsonify({'message': 'All fields are required'}), 400
@@ -56,26 +56,30 @@ def register():
 @app.route('/redeem', methods=['GET'])
 @login_required
 def redeem():
+    detector = Detector.query.filter_by(id=current_user.id).first()
     redeemed = None
-    if current_user.score > 10:
+    print(detector.score)
+    print(detector.username)
+    if detector.score >= 10:
         redeemed = Rewards.query.filter_by(userId=None).first()
 
     if redeemed:
-
-        current_user.score -= 10
+        detector.score -= 10
         redeemed.userId = current_user.id
         db.session.commit()
-        return jsonify({'reward': redeemed}), 200
+        return jsonify({'reward': redeemed.to_dict()}), 200
     else:
-        return jsonify({'message': 'try again  on another time '}), 400
+        return jsonify({'error': 'Reward not found'}), 404
 
 
 @app.route('/user_rewards', methods=['GET'])
 @login_required
 def user_rewards():
-    rewards = Rewards.query.filter_by(userId=current_user.id)
-
-    return jsonify({'rewards': rewards}), 200
+    rewards = Rewards.query.filter_by(userId=current_user.id).all()
+    rewards_list = []
+    for reward in rewards:
+        rewards_list.append(reward.to_dict())
+    return jsonify({'rewards': rewards_list}), 200
 
 
 @app.route('/login', methods=['POST'])
@@ -85,20 +89,21 @@ def login_page():
     email = data.get('email')
     password = data.get('password')
     if username:
-        attempted_user = User.query.filter_by(username=username.data).first()
+        attempted_user = User.query.filter_by(username=username).first()
     else:
-        attempted_user = User.query.filter_by(email_address=email.data).first()
+        attempted_user = User.query.filter_by(email_address=email).first()
 
     if attempted_user and attempted_user.check_password_correction(
             attempted_password=password
     ):
         login_user(attempted_user)
         flash(f'Success! You are logged in as: {attempted_user.username}', category='success')
+        return jsonify({'message': f'Done '}), 200
 
     else:
         flash('Username and password are not match! Please try again', category='danger')
 
-    return jsonify({'message': f'Done '}), 200
+
 
 
 @app.route('/logout')
@@ -106,7 +111,7 @@ def login_page():
 def logout_page():
     logout_user()
     flash("You have been logged out!", category='info')
-    return redirect(url_for("home_page"))
+    return redirect(url_for("index"))
 
 
 @app.route("/upload-image", methods=["POST"])
