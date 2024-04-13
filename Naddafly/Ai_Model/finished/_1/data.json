@@ -1,0 +1,17 @@
+[
+    {
+        "image": "1ca4b137-34.jpg",
+        "Confidence": 99.99996185302734,
+        "size": "large"
+    },
+    {
+        "image": "1ca4b137-342.jpg",
+        "Confidence": 100.0,
+        "size": "large"
+    },
+    {
+        "image": "1ca4b137-343.jpg",
+        "Confidence": 100.0,
+        "size": "large"
+    }
+]
