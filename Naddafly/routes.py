@@ -104,8 +104,6 @@ def login_page():
         flash('Username and password are not match! Please try again', category='danger')
 
 
-
-
 @app.route('/logout')
 @login_required
 def logout_page():
@@ -118,6 +116,6 @@ def logout_page():
 @login_required
 def upload_image():
     image = request.files['image']
+    detector = Detector.query.filter_by(id=current_user.id).first()
     process_image(image, current_user, request)
-
-    return "DONE", 200
+    return jsonify({'score': detector.score}), 200
