@@ -82,7 +82,8 @@ def process_image(image, user, request):
     longitude = request.form.get('longitude')
     # owner_id = request.form.get('owner_id')  # Assuming this is the ID of the user who owns the garbage
     detection_date = request.form.get('detection_date')
-    detection_date = datetime.strptime(detection_date, '%Y-%m-%d %H:%M:%S')
+    date_string = detection_date.strip('"')
+    detection_date = datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S')
     filename = image.filename
     image_path = f"{raw_images_dir}/{filename}"
     image.save(image_path)
