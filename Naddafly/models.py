@@ -32,15 +32,40 @@ class User(db.Model, UserMixin):
     def check_password_correction(self, attempted_password):
         return bcrypt.check_password_hash(self.password_hash, attempted_password)
 
+    def disc_fun(self):
+        return {}
+
+    def to_dict(self):
+        return {
+            'id': str(self.id),
+            'username': self.username,
+            'email_address': self.email_address,
+            'is_verified': self.is_verified,
+            'discriminator': self.discriminator,
+
+        } | self.disc_fun()
+
 
 class Detector(User):
     score = db.Column(db.Integer(), default=0)
+
+    def disc_fun(self):
+        return {
+            'score': self.score
+        }
 
 
 class Collector(User):
     collectorId = db.Column(db.String(length=30), unique=True)
     regionId = db.Column(db.String(length=30), unique=True)
     garbageCollected = db.Column(db.Integer(), default=0)
+
+    def disc_fun(self):
+        return {
+            'collectorId': self.collectorId,
+            'regionId': self.regionId,
+            'garbageCollected': self
+        }
 
 
 class Garbage(db.Model):

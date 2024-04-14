@@ -96,9 +96,16 @@ def login_page():
     if attempted_user and attempted_user.check_password_correction(
             attempted_password=password
     ):
+        idd = attempted_user.id
+        if attempted_user.discriminator == 'detector':
+            attempted_user = Detector.query.filter_by(id=idd).first()
+        else:
+            attempted_user = Collector.query.filter_by(id=idd).first()
+
         login_user(attempted_user)
         flash(f'Success! You are logged in as: {attempted_user.username}', category='success')
-        return jsonify({'message': f'Done '}), 200
+        print(attempted_user.to_dict())
+        return jsonify({'user': attempted_user.to_dict()}), 200
 
     else:
         flash('Username and password are not match! Please try again', category='danger')
