@@ -76,45 +76,35 @@ def MoveAndDel(images_folder, destination_folder, labels_folder, json_data):
 raw_images_dir = 'Naddafly/Ai_Model/images'
 
 
-def process_image(image, user, request):
-    # for image_file in os.listdir(raw_images_dir):
-    latitude = request.form.get('latitude')
-    longitude = request.form.get('longitude')
-    # owner_id = request.form.get('owner_id')  # Assuming this is the ID of the user who owns the garbage
+def process_image(image, user, request, latitude, longitude):
     detection_date = request.form.get('detection_date')
     date_string = detection_date.strip('"')
     detection_date = datetime.strptime(date_string, '%Y-%m-%d %H:%M:%S')
     filename = image.filename
     image_path = f"{raw_images_dir}/{filename}"
     image.save(image_path)
-    for image_file in os.listdir(raw_images_dir):
-        if image_file.endswith('.jpg') or image_file.endswith('.jpeg') or image_file.endswith('.png'):
-            # Perform detection on the image
-            raw_image = os.path.join(raw_images_dir, image_file)
-            detect(raw_image, yoloModel)
-            os.remove(raw_image)
-            json_data = Predict(model, images_folder)
-            if json_data:
 
-                detector = Detector.query.filter_by(id=user.id).first()
-                if detector:
-                    # Increment the score of the detector
-                    detector.score += 1
-                    db.session.commit()
-                print(json_data[0]['size'])
-                new_garbage = Garbage(
-                    latitude=latitude,
-                    longitude=longitude,
-                    owner=user.id,
-                    detection_date=detection_date,
-                    volume=json_data[0]['size']
-                )
-                db.session.add(new_garbage)
-                db.session.commit()
-                print("Garbage object created successfully.")
-            ##heare
+    raw_image = image_path
+    detect(raw_image, yoloModel)
+    os.remove(raw_image)
+    json_data = Predict(model, images_folder)
 
-            print(json_data)
-            MoveAndDel(images_folder, destination_folder, labels_folder, json_data)
+    if json_data:
+        detector = Detector.query.filter_by(id=user.id).first()
+        if detector:
+            detector.score += 1
+            db.session.commit()
 
+        new_garbage = Garbage(
+            latitude=latitude,
+            longitude=longitude,
+            owner=user.id,
+            detection_date=detection_date,
+            volume=json_data[0]['size']
+        )
+        db.session.add(new_garbage)
+        db.session.commit()
+        print("Garbage object created successfully.")
+
+    MoveAndDel(images_folder, destination_folder, labels_folder, json_data)
     print("Processing complete.")

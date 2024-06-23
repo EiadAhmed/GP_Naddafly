@@ -2,10 +2,24 @@ from datetime import *
 from secrets import token_urlsafe
 
 from flask_login import UserMixin
+# from geoalchemy2 import Geometry
 from Naddafly import db, app
 from Naddafly import login_manager
 
 from Naddafly import bcrypt
+from sqlalchemy import func
+
+# from sqlalchemy.ext.compiler import compiles
+# from sqlalchemy.sql.expression import FunctionElement
+
+
+# class ST_GeomFromText(FunctionElement):
+#     name = "ST_GeomFromText"
+
+
+# @compiles(ST_GeomFromText)
+# def compile(element, compiler, **kw):
+#     return "ST_GeomFromText(%s, %s)" % (compiler.process(element.clauses), element.kwargs.get('srid', 0))
 
 
 @login_manager.user_loader
@@ -64,7 +78,7 @@ class Collector(User):
         return {
             'collectorId': self.collectorId,
             'regionId': self.regionId,
-            'garbageCollected': self
+            'garbageCollected': self.garbageCollected
         }
 
 
@@ -78,14 +92,23 @@ class Garbage(db.Model):
     detection_date = db.Column(db.DateTime, nullable=False, default=datetime.now)
     volume = db.Column(db.String(), default=0)
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'latitude': self.latitude,
+            'longitude': self.longitude,
+            'owner': self.owner,
+            'is_collected': self.is_collected,
+            'collection_date': self.collection_date,
+            'detection_date': self.detection_date,
+            'volume': self.volume
+        }
+
 
 class Region(db.Model):
-    id = db.Column(db.Integer(), primary_key=True)
-    start_latitude = db.Column(db.String(length=30), nullable=False)
-    start_longitude = db.Column(db.String(length=30), nullable=False)
-    end_latitude = db.Column(db.String(length=30), nullable=False)
-    end_longitude = db.Column(db.String(length=30), nullable=False)
-
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    # polygon = db.Column((Geometry(geometry_type='POLYGON', srid=4326)), nullable=False, default='')
 
 class Rewards(db.Model):
     id = db.Column(db.Integer(), primary_key=True)

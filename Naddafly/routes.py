@@ -1,15 +1,60 @@
+from datetime import datetime
+
 from Naddafly import app, db
 from flask import render_template, request, redirect, url_for, flash
-from Naddafly.models import Garbage, Detector, Collector, User, Rewards
+from Naddafly.models import Garbage, Detector, Collector, User, Rewards, Region
 from Naddafly.Ai_Model.ai import process_image
 from flask import Flask, jsonify, request, render_template, redirect
 from flask_login import login_user, logout_user, login_required, current_user
+
 
 
 @app.route('/home')
 @app.route('/')
 def index():
     return 'Eiad'
+
+
+# @app.route("/create-region", methods=["POST"])
+# def create_region():
+#     # Parse JSON data from the request body
+#     data = request.json
+
+#     # Extract name and polygon from the JSON data
+#     name = data.get("name")
+#     polygonx = data.get("polygon")
+#     polygon = WKTElement(polygonx, srid=4326)  # Assuming SRID 4326 (WGS 84)
+#     print(polygon)
+
+#     # Check if name and polygon are provided
+#     if not name or not polygon:
+#         return jsonify({"error": "Both name and polygon are required"}), 400
+
+#     # Create a new Region instance
+#     new_region = Region(name=name, polygon=polygon)
+#     print("ay 7aga")
+
+#     try:
+#         # Add the new region to the database
+#         db.session.add(new_region)
+#         db.session.commit()
+
+#         # Display region info
+#         region_info = {
+#             "id": new_region.id,
+#             "name": new_region.name,
+#             "polygon": new_region.polygon
+#         }
+#         print("ay 7aga2222222222222222")
+
+#         return jsonify({
+#             "message": "Region created successfully",
+#             "region": region_info
+#         }), 201
+#     except Exception as e:
+#         # Rollback the transaction if an error occurs
+#         db.session.rollback()
+#         return jsonify({"error": str(e)}), 500
 
 
 @app.route('/register', methods=['POST'])
@@ -122,7 +167,47 @@ def logout_page():
 @app.route("/upload-image", methods=["POST"])
 @login_required
 def upload_image():
+    latitude = request.form.get('latitude')
+    longitude = request.form.get('longitude')
+    if latitude is None or longitude is None:
+        return jsonify({'error': 'Latitude and longitude are required'}), 400
+
     image = request.files['image']
-    detector = Detector.query.filter_by(id=current_user.id).first()
-    process_image(image, current_user, request)
-    return jsonify({'score': detector.score}), 200
+    process_image(image, current_user, request, latitude, longitude)
+
+    return jsonify({'success': True}), 200
+
+
+@app.route("/map", methods=["GET"])
+@login_required
+def map_page():
+    data = User.query.filter_by(id=current_user.id).first().discriminator
+    print(data)
+    if data != 'collector':
+        return jsonify({'error': 'Only garbage collectors can access this feature'}), 403
+
+    garbages = Garbage.query.filter_by(is_collected=False).all()
+    garbages_dict = [garbage.to_dict() for garbage in garbages]
+    print(garbages_dict)
+    return jsonify(garbages_dict)
+    garbage_locations = [{"latitude": garbage.latitude, "longitude": garbage.longitude} for garbage in garbages]
+    print(garbages)
+    return jsonify({ garbages}), 200
+
+
+@app.route("/remove-garbage/<int:garbage_id>", methods=["POST"])
+@login_required
+def remove_garbage_page(garbage_id):
+    data = User.query.filter_by(id=current_user.id).first().discriminator
+    print(data)
+    if data != 'collector':
+        return jsonify({'error': 'Only garbage collectors can remove garbage markers'}), 403
+
+    garbage = Garbage.query.get(garbage_id)
+    if garbage and not garbage.is_collected:
+        garbage.is_collected = True
+        garbage.collection_date = datetime.now()
+        db.session.commit()
+        return jsonify({"message": "Garbage marker removed successfully"}), 200
+    else:
+        return jsonify({"error": "Garbage not found"}), 404
