@@ -11,6 +11,8 @@ import shutil
 import json
 from Naddafly import db
 from Naddafly.models import Garbage, Detector, Collector, User
+from math import radians, cos, sin, sqrt, atan2
+
 
 # yolo
 
@@ -76,6 +78,22 @@ def MoveAndDel(images_folder, destination_folder, labels_folder, json_data):
 raw_images_dir = 'Naddafly/Ai_Model/images'
 
 
+def calc_distance(lat1, lon1, lat2, lon2):
+    dlat = radians(lat2 - lat1)
+    dlon = radians(lon2 - lon1)
+    a = sin(dlat / 2) * sin(dlat / 2) + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon / 2) * sin(dlon / 2)
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    distance = 6371 * c * 1000
+    return distance
+
+def is_near_existing_garbage(latitude, longitude):
+    garbages = Garbage.query.all()
+    for garbage in garbages:
+        distance = calc_distance(float(latitude), float(longitude), float(garbage.latitude),float( garbage.longitude))
+        if distance < 15:
+            return True
+    return False
+
 def process_image(image, user, request, latitude, longitude):
     detection_date = request.form.get('detection_date')
     date_string = detection_date.strip('"')
@@ -90,10 +108,18 @@ def process_image(image, user, request, latitude, longitude):
     json_data = Predict(model, images_folder)
 
     if json_data:
+
+        if is_near_existing_garbage(latitude, longitude):
+            print("Detected garbage is within 15 meters of existing garbage. Skipping creation.")
+            MoveAndDel(images_folder, destination_folder, labels_folder, json_data)
+            print("Processing complete.")
+            return
+
         detector = Detector.query.filter_by(id=user.id).first()
         if detector:
             detector.score += 1
             db.session.commit()
+
 
         new_garbage = Garbage(
             latitude=latitude,

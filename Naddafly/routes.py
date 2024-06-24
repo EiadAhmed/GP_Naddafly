@@ -175,7 +175,7 @@ def upload_image():
     image = request.files['image']
     process_image(image, current_user, request, latitude, longitude)
 
-    return jsonify({'success': True}), 200
+    return jsonify({'score': detector.score}), 200
 
 
 @app.route("/map", methods=["GET"])
@@ -207,7 +207,12 @@ def remove_garbage_page(garbage_id):
     if garbage and not garbage.is_collected:
         garbage.is_collected = True
         garbage.collection_date = datetime.now()
+
+        collector = Collector.query.filter_by(id=current_user.id).first()
+        if collector:
+            collector.garbageCollected += 1
+
         db.session.commit()
-        return jsonify({"message": "Garbage marker removed successfully"}), 200
+        return jsonify({"message": "Garbage marker removed successfully","garbageCollected": collector.garbageCollected}), 200
     else:
         return jsonify({"error": "Garbage not found"}), 404
