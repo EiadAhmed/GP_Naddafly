@@ -9,6 +9,9 @@ from Naddafly import login_manager
 
 from Naddafly import bcrypt
 from sqlalchemy import func
+from flask import url_for
+import base64
+
 
 # from sqlalchemy.ext.compiler import compiles
 # from sqlalchemy.sql.expression import FunctionElement
@@ -95,6 +98,23 @@ class Garbage(db.Model):
     img = db.Column(db.String(length=255), nullable=False, default='')
 
     def to_dict(self):
+        # Assuming 'self.img' contains just the filename, and you have a route set up to serve images
+        img_url = 'Ai_Model/images/ddff.jpg'
+  # Path to the image file
+        image_path = 'D:/GP/Naddafly/Ai_Model/images/ddff.jpg'
+        
+        # Initialize img_data as None in case the file doesn't exist or can't be opened
+        img_data = None
+        
+        try:
+            # Open the image file in binary read mode
+            with open(image_path, 'rb') as image_file:
+                # Read the file data
+                binary_data = image_file.read()
+                # Encode the data to base64
+                img_data = base64.b64encode(binary_data).decode('utf-8')
+        except Exception as e:
+            print(f"Error loading image: {e}")
         return {
             'id': self.id,
             'latitude': self.latitude,
@@ -104,9 +124,8 @@ class Garbage(db.Model):
             'collection_date': self.collection_date,
             'detection_date': self.detection_date,
             'volume': self.volume,
-            'img': send_from_directory(os.path.dirname(self.img), os.path.basename(self.img))
+            'img': img_data
         }
-
 
 class Region(db.Model):
     id = db.Column(db.Integer, primary_key=True)
