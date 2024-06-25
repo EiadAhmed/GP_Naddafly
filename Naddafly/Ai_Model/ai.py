@@ -113,7 +113,9 @@ def process_image(image, user, request, latitude, longitude):
             print("Detected garbage is within 15 meters of existing garbage. Skipping creation.")
             MoveAndDel(images_folder, destination_folder, labels_folder, json_data)
             print("Processing complete.")
-            os.remove(raw_image) 
+            os.remove(raw_image)
+            #new
+            clear_folder(destination_folder) 
             return
 
         detector = Detector.query.filter_by(id=user.id).first()
@@ -121,13 +123,13 @@ def process_image(image, user, request, latitude, longitude):
             detector.score += 1
             db.session.commit()
 
-
+        volume = determine_volume(json_data)
         new_garbage = Garbage(
             latitude=latitude,
             longitude=longitude,
             owner=user.id,
             detection_date=detection_date,
-            volume=json_data[0]['size'],
+            volume=volume,
             img=filename
         )
         db.session.add(new_garbage)
@@ -137,4 +139,27 @@ def process_image(image, user, request, latitude, longitude):
         os.remove(raw_image)    
 
     MoveAndDel(images_folder, destination_folder, labels_folder, json_data)
+    clear_folder(destination_folder)
     print("Processing complete.")
+
+#delete content inside finished folder 
+def clear_folder(folder_path):
+    if os.path.exists(folder_path):
+        for filename in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                print(f'Failed to delete {file_path}. Reason: {e}')
+
+
+def determine_volume(json_data):
+    # Determine the volume based on the entries in the JSON data
+    sizes = [entry['size'] for entry in json_data]
+    if 'large' in sizes:
+        return 'large'
+    else:
+        return 'small'
