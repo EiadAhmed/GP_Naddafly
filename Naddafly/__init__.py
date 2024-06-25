@@ -8,7 +8,7 @@ from flask_login import LoginManager
 
 import datetime
 
-app = Flask(__name__)
+app = Flask(__name__ , static_folder='static')
 app.config['JWT_SECRET_KEY'] = '7e2c0a1fa3ee02906ca29f4a'
 
 app.config['SECRET_KEY'] = '7e2c0a1fa3ee02906ca29f4a'

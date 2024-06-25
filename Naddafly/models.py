@@ -85,7 +85,20 @@ class Collector(User):
             'garbageCollected': self.garbageCollected
         }
 
-
+def save_image_to_server(binary_data):
+    # Define the directory where you want to save the image
+    save_directory = "static/images/"
+  
+    
+    try:
+       
+        url =  url_for('static', filename=f"images/{binary_data}")
+       
+        return url
+    
+    except Exception as e:
+        print(f"Error saving image to server: {e}")
+        return "Error"
 class Garbage(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     latitude = db.Column(db.String(length=30), nullable=False)
@@ -98,21 +111,11 @@ class Garbage(db.Model):
     img = db.Column(db.String(length=255), nullable=False, default='')
 
     def to_dict(self):
-        # Assuming 'self.img' contains just the filename, and you have a route set up to serve images
-        img_url = 'Ai_Model/images/ddff.jpg'
-  # Path to the image file
-        image_path = 'D:/GP/Naddafly/Ai_Model/images/ddff.jpg'
-        
-        # Initialize img_data as None in case the file doesn't exist or can't be opened
         img_data = None
         
         try:
-            # Open the image file in binary read mode
-            with open(image_path, 'rb') as image_file:
-                # Read the file data
-                binary_data = image_file.read()
-                # Encode the data to base64
-                img_data = base64.b64encode(binary_data).decode('utf-8')
+           
+            img_data = save_image_to_server(self.img)
         except Exception as e:
             print(f"Error loading image: {e}")
         return {

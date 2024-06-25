@@ -75,7 +75,7 @@ def MoveAndDel(images_folder, destination_folder, labels_folder, json_data):
         shutil.rmtree(labels_folder)
 
 
-raw_images_dir = 'Naddafly/Ai_Model/images'
+raw_images_dir = 'Naddafly/static/images'
 
 
 def calc_distance(lat1, lon1, lat2, lon2):
@@ -113,6 +113,7 @@ def process_image(image, user, request, latitude, longitude):
             print("Detected garbage is within 15 meters of existing garbage. Skipping creation.")
             MoveAndDel(images_folder, destination_folder, labels_folder, json_data)
             print("Processing complete.")
+            os.remove(raw_image) 
             return
 
         detector = Detector.query.filter_by(id=user.id).first()
@@ -127,7 +128,7 @@ def process_image(image, user, request, latitude, longitude):
             owner=user.id,
             detection_date=detection_date,
             volume=json_data[0]['size'],
-            img=raw_image
+            img=filename
         )
         db.session.add(new_garbage)
         db.session.commit()

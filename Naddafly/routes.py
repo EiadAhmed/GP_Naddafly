@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from Naddafly import app, db
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash ,send_from_directory ,send_file
 from Naddafly.models import Garbage, Detector, Collector, User, Rewards, Region
 from Naddafly.Ai_Model.ai import process_image
 from flask import Flask, jsonify, request, render_template, redirect
@@ -179,6 +179,7 @@ def upload_image():
 
 
 @app.route("/map", methods=["GET"])
+
 @login_required
 def map_page():
     print("ay 7aga")
@@ -192,9 +193,29 @@ def map_page():
     print(garbages_dict)
     return jsonify(garbages_dict) ,200
  
+@app.route("/map-img", methods=["GET"])
 
+@login_required
+def map_page2():
+ 
+    # data = User.query.filter_by(id=current_user.id).first().discriminator
+    # print(data)
+    # if data != 'collector':
+    #     return jsonify({'error': 'Only garbage collectors can access this feature'}), 403
+
+    # garbages = Garbage.query.filter_by(is_collected=False).all()
+    # garbages_dict = [garbage.img for garbage in garbages]
+    # images = []
+    # for img_path in garbages_dict:
+    #     with open(img_path, 'rb') as f:
+    #         image_data = f.read()
+    #         images.append(image_data)
+    # return images, 200
+   
+    return send_file(f'..\static\\images\\a7a.jpg') 
 
 @app.route("/remove-garbage/<int:garbage_id>", methods=["POST"])
+
 @login_required
 def remove_garbage_page(garbage_id):
     data = User.query.filter_by(id=current_user.id).first().discriminator
