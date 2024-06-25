@@ -104,7 +104,7 @@ def process_image(image, user, request, latitude, longitude):
 
     raw_image = image_path
     detect(raw_image, yoloModel)
-    os.remove(raw_image)
+    # os.remove(raw_image)
     json_data = Predict(model, images_folder)
 
     if json_data:
@@ -126,11 +126,14 @@ def process_image(image, user, request, latitude, longitude):
             longitude=longitude,
             owner=user.id,
             detection_date=detection_date,
-            volume=json_data[0]['size']
+            volume=json_data[0]['size'],
+            img=raw_image
         )
         db.session.add(new_garbage)
         db.session.commit()
         print("Garbage object created successfully.")
+    else:
+        os.remove(raw_image)    
 
     MoveAndDel(images_folder, destination_folder, labels_folder, json_data)
     print("Processing complete.")

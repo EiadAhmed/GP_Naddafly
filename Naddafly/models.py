@@ -1,6 +1,7 @@
 from datetime import *
 from secrets import token_urlsafe
-
+from flask import Flask, send_from_directory, abort
+import os
 from flask_login import UserMixin
 # from geoalchemy2 import Geometry
 from Naddafly import db, app
@@ -91,6 +92,7 @@ class Garbage(db.Model):
     collection_date = db.Column(db.DateTime)
     detection_date = db.Column(db.DateTime, nullable=False, default=datetime.now)
     volume = db.Column(db.String(), default=0)
+    img = db.Column(db.String(length=255), nullable=False, default='')
 
     def to_dict(self):
         return {
@@ -101,7 +103,8 @@ class Garbage(db.Model):
             'is_collected': self.is_collected,
             'collection_date': self.collection_date,
             'detection_date': self.detection_date,
-            'volume': self.volume
+            'volume': self.volume,
+            'img': send_from_directory(os.path.dirname(self.img), os.path.basename(self.img))
         }
 
 

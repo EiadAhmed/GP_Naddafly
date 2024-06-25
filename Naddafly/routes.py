@@ -174,13 +174,14 @@ def upload_image():
 
     image = request.files['image']
     process_image(image, current_user, request, latitude, longitude)
-
+    detector = Detector.query.filter_by(id=current_user.id).first()
     return jsonify({'score': detector.score}), 200
 
 
 @app.route("/map", methods=["GET"])
 @login_required
 def map_page():
+    print("ay 7aga")
     data = User.query.filter_by(id=current_user.id).first().discriminator
     print(data)
     if data != 'collector':
@@ -189,10 +190,8 @@ def map_page():
     garbages = Garbage.query.filter_by(is_collected=False).all()
     garbages_dict = [garbage.to_dict() for garbage in garbages]
     print(garbages_dict)
-    return jsonify(garbages_dict)
-    garbage_locations = [{"latitude": garbage.latitude, "longitude": garbage.longitude} for garbage in garbages]
-    print(garbages)
-    return jsonify({ garbages}), 200
+    return jsonify(garbages_dict) ,200
+ 
 
 
 @app.route("/remove-garbage/<int:garbage_id>", methods=["POST"])
