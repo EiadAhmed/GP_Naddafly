@@ -1,0 +1,372 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Naddafly API",
+      "version": "1.0.0",
+      "description": "API for Naddafly application"
+    },
+    "paths": {
+      
+      "/register": {
+        "post": {
+          "summary": "Register a new user",
+          "description": "Register a new user",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "username": { "type": "string" },
+                    "email": { "type": "string" },
+                    "password": { "type": "string" },
+                    "user_type": { "type": "string" }
+                  },
+                  "required": ["username", "email", "password", "user_type"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "User created",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": { "type": "string" }
+                    }
+                  },
+                  "example": {
+                    "message": "User created"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": { "type": "string" }
+                    }
+                  },
+                  "example": {
+                    "message": "All fields are required"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/redeem": {
+        "get": {
+          "summary": "Redeem rewards",
+          "description": "Redeem rewards for detectors",
+          "responses": {
+            "200": {
+              "description": "Reward redeemed",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "reward": { "type": "object" }
+                    }
+                  },
+                  "example": {
+                    "reward": { "id": 1, "name": "Free Coffee", "userId": 1 }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Reward not found",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": { "type": "string" }
+                    }
+                  },
+                  "example": {
+                    "error": "Reward not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/user_rewards": {
+        "get": {
+          "summary": "Get user rewards",
+          "description": "Get all rewards for the current user",
+          "responses": {
+            "200": {
+              "description": "List of user rewards",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "rewards": {
+                        "type": "array",
+                        "items": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  },
+                  "example": {
+                    "rewards": [
+                      { "id": 1, "name": "Free Coffee", "userId": 1 },
+                      { "id": 2, "name": "Free Donut", "userId": 1 }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/login": {
+        "post": {
+          "summary": "Login user",
+          "description": "Login user with username/email and password",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "username": { "type": "string" },
+                    "email": { "type": "string" },
+                    "password": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "User logged in",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "user": { "type": "object" }
+                    }
+                  },
+                  "example": {
+                    "user": { "id": 1, "username": "user1", "email": "user1@example.com" }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid credentials",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": { "type": "string" }
+                    }
+                  },
+                  "example": {
+                    "message": "Username and password do not match! Please try again."
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/logout": {
+        "get": {
+          "summary": "Logout user",
+          "description": "Logout the current user",
+          "responses": {
+            "302": {
+              "description": "Redirect to home"
+            }
+          }
+        }
+      },
+      "/upload-image": {
+        "post": {
+          "summary": "Upload image",
+          "description": "Upload an image with latitude and longitude",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "latitude": { "type": "string" },
+                    "longitude": { "type": "string" },
+                    "image": { "type": "string", "format": "binary" }
+                  },
+                  "required": ["latitude", "longitude", "image"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Image uploaded",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "score": { "type": "integer" }
+                    }
+                  },
+                  "example": {
+                    "score": 10
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": { "type": "string" }
+                    }
+                  },
+                  "example": {
+                    "error": "Latitude and longitude are required"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/map": {
+        "get": {
+          "summary": "Get map data",
+          "description": "Get map data for garbage collectors",
+          "responses": {
+            "200": {
+              "description": "Map data",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  },
+                  "example": [
+                    { "id": 1, "latitude": "12.34", "longitude": "56.78", "is_collected": false },
+                    { "id": 2, "latitude": "23.45", "longitude": "67.89", "is_collected": false }
+                  ]
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": { "type": "string" }
+                    }
+                  },
+                  "example": {
+                    "error": "Only garbage collectors can access this feature"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/remove-garbage/{garbage_id}": {
+        "post": {
+          "summary": "Remove garbage",
+          "description": "Remove a garbage marker",
+          "parameters": [
+            {
+              "name": "garbage_id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "integer"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Garbage marker removed",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "message": { "type": "string" },
+                      "garbageCollected": { "type": "integer" }
+                    }
+                  },
+                  "example": {
+                    "message": "Garbage marker removed successfully",
+                    "garbageCollected": 5
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": { "type": "string" }
+                    }
+                  },
+                  "example": {
+                    "error": "Only garbage collectors can remove garbage markers"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Garbage not found",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": { "type": "string" }
+                    }
+                  },
+                  "example": {
+                    "error": "Garbage not found"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  

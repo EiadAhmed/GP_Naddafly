@@ -12,49 +12,8 @@ from flask_login import login_user, logout_user, login_required, current_user
 @app.route('/home')
 @app.route('/')
 def index():
-    return 'Eiad'
+    return 'Eiad Says Hello!, Welcome to Naddafly! \n try /swagger/'
 
-
-# @app.route("/create-region", methods=["POST"])
-# def create_region():
-#     # Parse JSON data from the request body
-#     data = request.json
-
-#     # Extract name and polygon from the JSON data
-#     name = data.get("name")
-#     polygonx = data.get("polygon")
-#     polygon = WKTElement(polygonx, srid=4326)  # Assuming SRID 4326 (WGS 84)
-#     print(polygon)
-
-#     # Check if name and polygon are provided
-#     if not name or not polygon:
-#         return jsonify({"error": "Both name and polygon are required"}), 400
-
-#     # Create a new Region instance
-#     new_region = Region(name=name, polygon=polygon)
-#     print("ay 7aga")
-
-#     try:
-#         # Add the new region to the database
-#         db.session.add(new_region)
-#         db.session.commit()
-
-#         # Display region info
-#         region_info = {
-#             "id": new_region.id,
-#             "name": new_region.name,
-#             "polygon": new_region.polygon
-#         }
-#         print("ay 7aga2222222222222222")
-
-#         return jsonify({
-#             "message": "Region created successfully",
-#             "region": region_info
-#         }), 201
-#     except Exception as e:
-#         # Rollback the transaction if an error occurs
-#         db.session.rollback()
-#         return jsonify({"error": str(e)}), 500
 
 
 @app.route('/register', methods=['POST'])
@@ -195,24 +154,6 @@ def map_page():
  
 @app.route("/map-img", methods=["GET"])
 
-@login_required
-def map_page2():
- 
-    # data = User.query.filter_by(id=current_user.id).first().discriminator
-    # print(data)
-    # if data != 'collector':
-    #     return jsonify({'error': 'Only garbage collectors can access this feature'}), 403
-
-    # garbages = Garbage.query.filter_by(is_collected=False).all()
-    # garbages_dict = [garbage.img for garbage in garbages]
-    # images = []
-    # for img_path in garbages_dict:
-    #     with open(img_path, 'rb') as f:
-    #         image_data = f.read()
-    #         images.append(image_data)
-    # return images, 200
-   
-    return send_file(f'..\static\\images\\a7a.jpg') 
 
 @app.route("/remove-garbage/<int:garbage_id>", methods=["POST"])
 
