@@ -181,3 +181,4 @@ with app.app_context():
             # Add the new_reward to the session and commit to the database
             db.session.add(new_reward)
             db.session.commit()
+            print("done")

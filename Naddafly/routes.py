@@ -126,8 +126,11 @@ def logout_page():
 @app.route("/upload-image", methods=["POST"])
 @login_required
 def upload_image():
-    latitude = request.form.get('latitude')
-    longitude = request.form.get('longitude')
+    latitude = float(request.form.get('latitude'))
+    longitude = float(request.form.get('longitude'))
+    print(latitude)
+    print(longitude)
+
     if latitude is None or longitude is None:
         return jsonify({'error': 'Latitude and longitude are required'}), 400
 
