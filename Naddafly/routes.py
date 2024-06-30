@@ -112,7 +112,7 @@ def login_page():
         return jsonify({'user': attempted_user.to_dict()}), 200
 
     else:
-        flash('Username and password are not match! Please try again', category='danger')
+         return jsonify({'user': 'bad'}), 404
 
 
 @app.route('/logout')
@@ -128,6 +128,11 @@ def logout_page():
 def upload_image():
     latitude = float(request.form.get('latitude'))
     longitude = float(request.form.get('longitude'))
+    image = request.files['image']
+    if not latitude or not longitude :
+        return jsonify({'error': 'Latitude, longitude and image are required'}), 400
+    if not image:
+        return jsonify({'error': 'Image is required'}), 400
     print(latitude)
     print(longitude)
 

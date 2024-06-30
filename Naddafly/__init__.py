@@ -16,6 +16,7 @@ app.config['SECRET_KEY'] = '7e2c0a1fa3ee02906ca29f4a'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(days=1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///Naddafly.db'
+app.config['SQLALCHEMY_POOL_SIZE'] = 200  
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
